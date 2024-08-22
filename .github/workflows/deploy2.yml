@@ -1,4 +1,4 @@
-name: Deploy and Check Server
+name: Deploy 2
 
 on:
   workflow_run:
