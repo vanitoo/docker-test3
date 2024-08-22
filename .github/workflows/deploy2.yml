@@ -1,0 +1,67 @@
+name: Deploy and Check Server
+
+on:
+  workflow_run:
+    workflows: ["Build Docker Image"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+
+
+name: 'Deploy 2'
+
+
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: 'Build & Deploy'
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v3  # Обновлено до последней версии
+
+      - name: "Set up QEMU"
+        uses: docker/setup-qemu-action@v3
+
+      - name: "Set up Docker Buildx"
+        uses: docker/setup-buildx-action@v3
+
+      - name: "Login to GitHub Container Registry"
+        uses: docker/login-action@v2  # Обновлено до стабильной версии
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Build and Push Template Server"
+        uses: docker/build-push-action@v3  # Обновлено до последней версии
+        with:
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/dockertest:latest
+          build-args: |
+            build_mode=Release
+
+      - name: "Run deploy on server"
+        uses: appleboy/ssh-action@v1.0.3  # Используйте стабильную версию
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            echo "Pulling and deploying Docker containers..."
+            sudo docker-compose -f docker-compose.yml -p prod pull
+            sudo docker-compose -f docker-compose.yml -p prod up -d
