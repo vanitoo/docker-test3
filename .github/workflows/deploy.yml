@@ -29,14 +29,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Build and Push Template Server"
-        uses: docker/build-push-action@v3  # Обновлено до последней версии
-        with:
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/docker-test3:latest
-          build-args: |
-            build_mode=Release
+#      - name: "Build and Push Template Server"
+#        uses: docker/build-push-action@v3  # Обновлено до последней версии
+#        with:
+#          push: true
+#          tags: |
+#            ghcr.io/${{ github.repository_owner }}/docker-test3:latest
+#          build-args: |
+#            build_mode=Release
 
 
       - name: Build and Push Docker Image
@@ -63,5 +63,5 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             echo "Pulling and deploying Docker containers..."
-            sudo docker-compose -f docker-compose.yml -p prod pull
-            sudo docker-compose -f docker-compose.yml -p prod up -d
+            sudo docker-compose -f /project/docker-test3/docker-compose.yml -p prod pull
+            sudo docker-compose -f /project/docker-test3/docker-compose.yml -p prod up -d
