@@ -27,3 +27,5 @@ jobs:
 
     - name: Logout from GitHub Container Registry
       run: docker logout ghcr.io
+
+
